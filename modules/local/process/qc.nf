@@ -47,7 +47,7 @@ process SCFLOW_QC {
         exit 1
     fi
 
-    ../templates/scflow_qc.r \
+    scflow_qc.r \
     $options.args \
     --input ${input} \
     --mat_path \${MATPATH} \

@@ -4,10 +4,21 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { paramsSummaryMap       } from 'plugin/nf-validation'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_scflowqc_pipeline'
+if (params.manifest) { ch_manifest = file(params.manifest, checkIfExists: true) }
+if (params.input) { ch_input = file(params.input, checkIfExists: true)}
+if (params.ensembl_mappings) { ch_ensembl_mappings = file(params.ensembl_mappings, checkIfExists: false) }
 
+
+def modules = params.modules.clone()
+
+def scflow_checkinputs_options = modules['scflow_checkinputs']
+scflow_checkinputs_options.args = ''
+
+def scflow_qc_options = modules['scflow_qc']
+scflow_qc_options.args = '' // TODO: define QC options???
+
+include { SCFLOW_CHECKINPUTS         } from '../modules/local/process/checkinputs'       addParams( options: scflow_checkinputs_options       )
+include { SCFLOW_QC                  } from '../modules/local/process/qc'                addParams( options: scflow_qc_options                )
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     RUN MAIN WORKFLOW
@@ -16,22 +27,22 @@ include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_scfl
 
 workflow SCFLOWQC {
 
-    take:
-    ch_samplesheet // channel: samplesheet read in from --input
-
     main:
+    SCFLOW_CHECKINPUTS (
+        ch_manifest,
+        ch_input
+    )
 
-    ch_versions = Channel.empty()
+    SCFLOW_QC (
+        SCFLOW_CHECKINPUTS.out.checked_manifest.splitCsv(
+            header:['key', 'filepath'],
+            skip: 1, sep: '\t'
+            )
+        .map { row -> tuple(row.key, row.filepath) },
+        ch_input,
+        ch_ensembl_mappings
+    )
 
-    //
-    // Collate and save software versions
-    //
-    softwareVersionsToYAML(ch_versions)
-        .collectFile(storeDir: "${params.outdir}/pipeline_info", name: 'nf_core_pipeline_software_mqc_versions.yml', sort: true, newLine: true)
-        .set { ch_versions }
-
-    emit:
-    versions       = ch_versions                 // channel: [ path(versions.yml) ]
 }
 
 /*

@@ -33,7 +33,7 @@ workflow {
     //
     // WORKFLOW: Run main workflow
     //
-    SCFLOWQC (Channel.empty())
+    SCFLOWQC ()
 }
 
 /*
