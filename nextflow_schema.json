@@ -10,69 +10,313 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
+            "required": [
+                "manifest",
+                "input",
+                "ensembl_mappings",
+                "ctd_path",
+                "species",
+                "max_cores"
+            ],
             "properties": {
+                "manifest": {
+                    "type": "string",
+                    "default": "./refs/Manifest.txt",
+                    "fa_icon": "fas fa-table",
+                    "description": "The .tsv file specifying sample matrix filepaths."
+                },
                 "input": {
                     "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "schema": "assets/schema_input.json",
-                    "mimetype": "text/csv",
-                    "pattern": "^\\S+\\.csv$",
-                    "description": "Path to comma-separated file containing information about the samples in the experiment.",
-                    "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. See [usage docs](https://nf-co.re/scflowqc/usage#samplesheet-input).",
-                    "fa_icon": "fas fa-file-csv"
+                    "default": "./refs/SampleSheet.tsv",
+                    "fa_icon": "fas fa-table",
+                    "description": "The .tsv file specifying sample metadata."
+                },
+                "ensembl_mappings": {
+                    "type": "string",
+                    "default": "https://raw.githubusercontent.com/nf-core/test-datasets/scflow/assets/ensembl_mappings.tsv",
+                    "fa_icon": "fas fa-table",
+                    "description": "Optional tsv file containing mappings between ensembl_gene_id's and gene_names's"
+                },
+                "ctd_path": {
+                    "type": "string",
+                    "default": "https://s3-eu-west-1.amazonaws.com/pfigshare-u-files/28033407/ctd_v1.zip",
+                    "description": "Cell-type annotations reference file path",
+                    "help_text": "This is a zip file containing cell-type annotation reference files for the EWCE package.",
+                    "fa_icon": "fas fa-file-archive"
+                },
+                "celltype_mappings": {
+                    "type": "string",
+                    "default": "./conf/celltype_mappings.tsv",
+                    "fa_icon": "fas fa-table",
+                    "description": "Optional tsv file specifying manual revisions of cell-type annotations."
+                },
+                "reddim_genes_yml": {
+                    "type": "string",
+                    "default": "./conf/reddim_genes.yml",
+                    "fa_icon": "fas fa-list",
+                    "description": "Optional list of genes of interest in YML format for plotting of gene expression."
+                },
+                "species": {
+                    "type": "string",
+                    "default": "human",
+                    "fa_icon": "fas fa-male",
+                    "description": "Input sample species.",
+                    "help_text": "Currently, \"human\" and \"mouse\" are supported."
+                },
+                "max_cores": {
+                    "type": "string",
+                    "default": "'null'",
+                    "description": "Maximum CPU cores.",
+                    "help_text": "The default value of 'null' utilizes all available CPU cores.  Manually overriding this parameter can reduce the memory demands of parallelization across multiple cores."
                 },
                 "outdir": {
                     "type": "string",
-                    "format": "directory-path",
-                    "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
-                    "fa_icon": "fas fa-folder-open"
-                },
-                "email": {
-                    "type": "string",
-                    "description": "Email address for completion summary.",
-                    "fa_icon": "fas fa-envelope",
-                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
-                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
-                },
-                "multiqc_title": {
-                    "type": "string",
-                    "description": "MultiQC report title. Printed as page header, used for filename if not otherwise specified.",
-                    "fa_icon": "fas fa-file-signature"
-                }
+                    "default": "./results",
+                    "description": "Outputs directory."
             }
         },
-        "reference_genome_options": {
-            "title": "Reference genome options",
+        "quality_control": {
+            "title": "Quality-Control",
             "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Reference genome related files and options required for the workflow.",
+            "description": "Parameters for quality-control and thresholding.",
+            "default": "",
             "properties": {
-                "genome": {
+                "qc_key_colname": {
                     "type": "string",
-                    "description": "Name of iGenomes reference.",
-                    "fa_icon": "fas fa-book",
-                    "help_text": "If using a reference genome configured in the pipeline using iGenomes, use this parameter to give the ID for the reference. This is then used to build the full paths for all required reference genome files e.g. `--genome GRCh38`. \n\nSee the [nf-core website docs](https://nf-co.re/usage/reference_genomes) for more details."
+                    "default": "manifest",
+                    "description": "The sample sheet column name with unique sample identifiers.",
+                    "fa_icon": "fas fa-user-tag"
                 },
-                "fasta": {
+                "qc_factor_vars": {
                     "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
+                    "default": "seqdate",
+                    "description": "The sample sheet variables to treat as factors.",
+                    "help_text": "All sample sheet columns with numbers which should be treated as factors should be specified here separated by commas.   Examples include columns with dates, numeric sample identifiers, etc.",
+                    "fa_icon": "fas fa-quote-left"
                 },
-                "igenomes_ignore": {
-                    "type": "boolean",
-                    "description": "Do not load the iGenomes reference config.",
-                    "fa_icon": "fas fa-ban",
-                    "hidden": true,
-                    "help_text": "Do not load `igenomes.config` when running the pipeline. You may choose this option if you observe clashes between custom parameters and those supplied in `igenomes.config`."
+                "qc_min_library_size": {
+                    "type": "integer",
+                    "default": 250,
+                    "description": "Minimum library size (counts) per cell.",
+                    "fa_icon": "fas fa-greater-than-equal"
+                },
+                "qc_max_library_size": {
+                    "type": "string",
+                    "default": "adaptive",
+                    "description": "Maximum library size (counts) per cell.",
+                    "fa_icon": "fas fa-less-than-equal"
+                },
+                "qc_min_features": {
+                    "type": "integer",
+                    "default": 100,
+                    "description": "Minimum features (expressive genes) per cell.",
+                    "fa_icon": "fas fa-greater-than-equal"
+                },
+                "qc_max_features": {
+                    "type": "string",
+                    "default": "adaptive",
+                    "description": "Maximum features (expressive genes) per cell.",
+                    "fa_icon": "fas fa-less-than-equal"
+                },
+                "qc_min_ribo": {
+                    "type": "number",
+                    "description": "Minimum proportion of counts mapping to ribosomal genes.",
+                    "fa_icon": "fas fa-greater-than-equal",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "qc_max_ribo": {
+                    "type": "number",
+                    "default": 1,
+                    "description": "Maximum proportion of counts mapping to ribosomal genes.",
+                    "fa_icon": "fas fa-less-than-equal",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "qc_max_mito": {
+                    "type": "string",
+                    "default": "adaptive",
+                    "description": "Maximum proportion of counts mapping to mitochondrial genes.",
+                    "fa_icon": "fas fa-less-than-equal"
+                },
+                "qc_min_counts": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Minimum counts for gene expressivity.",
+                    "help_text": "Expressive genes must have >=min_counts in >=min_cells",
+                    "fa_icon": "fas fa-greater-than-equal"
+                },
+                "qc_min_cells": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Minimum cells for gene expressivity.",
+                    "help_text": "Expressive genes must have >=min_counts in >=min_cells",
+                    "fa_icon": "fas fa-greater-than-equal"
+                },
+                "qc_drop_unmapped": {
+                    "type": "string",
+                    "default": "True",
+                    "description": "Option to drop unmapped genes.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "qc_drop_mito": {
+                    "type": "string",
+                    "default": "True",
+                    "description": "Option to drop mitochondrial genes.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "qc_drop_ribo": {
+                    "type": "string",
+                    "description": "Option to drop ribosomal genes.",
+                    "fa_icon": "fas fa-cut",
+                    "default": "false"
+                },
+                "qc_nmads": {
+                    "type": "number",
+                    "default": 4,
+                    "description": "The number of MADs for outlier detection.",
+                    "help_text": "The number of median absolute deviations (MADs) used to define outliers for adaptive thresholding.",
+                    "fa_icon": "fas fa-mountain"
                 }
-            }
+            },
+            "fa_icon": "far fa-check-circle",
+            "required": [
+                "qc_key_colname",
+                "qc_factor_vars",
+                "qc_min_library_size",
+                "qc_max_library_size",
+                "qc_min_features",
+                "qc_max_features",
+                "qc_max_ribo",
+                "qc_max_mito",
+                "qc_min_counts",
+                "qc_min_cells",
+                "qc_drop_unmapped",
+                "qc_drop_mito",
+                "qc_drop_ribo",
+                "qc_nmads"
+            ]
+        },
+        "multiplet_identification": {
+            "title": "Multiplet Identification",
+            "type": "object",
+            "description": "Parameters for identifying singlets/doublets/multiplets.",
+            "default": "",
+            "properties": {
+                "mult_find_singlets": {
+                    "type": "string",
+                    "default": "True",
+                    "description": "Enable doublet/multiplet identification.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "mult_singlets_method": {
+                    "type": "string",
+                    "default": "doubletfinder",
+                    "description": "Algorithm to use for doublet/multiplet identification."
+                },
+                "mult_vars_to_regress_out": {
+                    "type": "string",
+                    "default": "nCount_RNA,pc_mito",
+                    "description": "Variables to regress out for dimensionality reduction."
+                },
+                "mult_pca_dims": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Number of PCA dimensions to use."
+                },
+                "mult_var_features": {
+                    "type": "integer",
+                    "default": 2000,
+                    "description": "The top n most variable features to use."
+                },
+                "mult_doublet_rate": {
+                    "type": "number",
+                    "description": "A fixed doublet rate.",
+                    "help_text": "Use a fixed default rate (e.g. 0.075 to specify that 7.5% of all cells should be marked as doublets), or set to 0 to use the \"dpk\" method (recommended)."
+                },
+                "mult_dpk": {
+                    "type": "integer",
+                    "default": 8,
+                    "description": "Doublets per thousand cells increment.",
+                    "help_text": "The doublets per thousand cell increment specifies the expected doublet rate based on the number of cells, i.e. with a dpk of 8 (recommended by 10X), a dataset with 1000 cells is expected to contain 8 doublets per thousand cells, a dataset with 2000 cells is expected to contain 16 doublets per thousand cells, and a dataset with 10000 cells is expected to contain 80 cells per thousand cells (or 800 doublets in total).  If the \"doublet_rate\" parameter is manually specified this recommended incremental behaviour is overridden.",
+                    "minimum": 0,
+                    "maximum": 1000
+                },
+                "mult_pK": {
+                    "type": "number",
+                    "default": 0.02,
+                    "description": "Specify a pK value instead of parameter sweep.",
+                    "help_text": "The optimal pK value used by the doubletFinder algorithm is determined following a compute-intensive parameter sweep.  The parameter sweep can be overridden by manually specifying a pK value."
+                }
+            },
+            "fa_icon": "fas fa-adjust",
+            "required": [
+                "mult_find_singlets",
+                "mult_singlets_method",
+                "mult_vars_to_regress_out",
+                "mult_pca_dims",
+                "mult_var_features",
+                "mult_dpk",
+                "mult_pK"
+            ]
+        },
+        "ambient_rna_profiling": {
+            "title": "Ambient RNA Profiling",
+            "type": "object",
+            "description": "Options for profiling ambient RNA/empty droplets.",
+            "default": "",
+            "properties": {
+                "amb_find_cells": {
+                    "type": "string",
+                    "default": "True",
+                    "description": "Enable ambient RNA / empty droplet profiling.",
+                    "fa_icon": "fas fa-cut"
+                },
+                "amb_retain": {
+                    "type": "string",
+                    "default": "auto",
+                    "help_text": "A numeric scalar specifying the threshold for the total UMI count above which all barcodes are assumed to contain cells, or \"auto\" for automated estimation based on the data.",
+                    "description": "Upper UMI counts threshold for true cell annotation.",
+                    "pattern": "^(\\d+|auto)$",
+                    "fa_icon": "fas fa-less-than-equal"
+                },
+                "amb_lower": {
+                    "type": "integer",
+                    "default": 100,
+                    "help_text": "A numeric scalar specifying the lower bound on the total UMI count, at or below which all barcodes are assumed to correspond to empty droplets.",
+                    "description": "Lower UMI counts threshold for empty droplet annotation.",
+                    "fa_icon": "fas fa-greater-than-equal"
+                },
+                "amb_alpha_cutoff": {
+                    "type": "number",
+                    "default": 0.001,
+                    "description": "The maximum FDR for the emptyDrops algorithm.",
+                    "fa_icon": "fas fa-less-than-equal"
+                },
+                "amb_niters": {
+                    "type": "integer",
+                    "default": 10000,
+                    "help_text": "An integer scalar specifying the number of iterations to use for the Monte Carlo p-value calculations for the emptyDrops algorithm.",
+                    "description": "Number of Monte Carlo p-value iterations.",
+                    "fa_icon": "fas fa-recycle"
+                },
+                "amb_expect_cells": {
+                    "type": "integer",
+                    "default": 3000,
+                    "description": "Expected number of cells per sample.",
+                    "help_text": "If the \"retain\" parameter is set to \"auto\" (recommended), then this parameter is used to identify the optimal value for \"retain\" for the emptyDrops algorithm.",
+                    "fa_icon": "fas fa-greater-than-equal"
+                }
+            },
+            "fa_icon": "far fa-chart-bar",
+            "required": [
+                "amb_find_cells",
+                "amb_retain",
+                "amb_lower",
+                "amb_alpha_cutoff",
+                "amb_niters",
+                "amb_expect_cells"
+            ]
         },
         "institutional_config_options": {
             "title": "Institutional config options",
@@ -274,7 +518,13 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/reference_genome_options"
+            "$ref": "#/definitions/quality_control"
+        },
+        {
+            "$ref": "#/definitions/multiplet_identification"
+        },
+        {
+            "$ref": "#/definitions/ambient_rna_profiling"
         },
         {
             "$ref": "#/definitions/institutional_config_options"
