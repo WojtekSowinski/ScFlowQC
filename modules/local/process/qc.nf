@@ -30,32 +30,7 @@ process SCFLOW_QC {
     script:
     def software = getSoftwareName(task.process)
 
-
-    """
-    export MC_CORES=${task.cpus}
-
-    if [[ -d ${mat_path} ]]; then
-        echo "${mat_path} is a directory"
-        MATPATH=${mat_path}
-    elif [[ -f ${mat_path} ]]; then
-        echo "${mat_path} is a file"
-        mkdir mat_folder && unzip ${mat_path} -d ./mat_folder
-        MATPATH=mat_folder
-    else
-        echo "${mat_path} is not valid"
-        MATPATH=${mat_path}
-        exit 1
-    fi
-
-    scflow_qc.r \
-    $options.args \
-    --input ${input} \
-    --mat_path \${MATPATH} \
-    --key ${key} \
-    --ensembl_mappings ${ensembl_mappings}
-
-    mkdir sce; mv ${key}_sce sce/
-
-    scflow_version=\$(Rscript -e 'cat(as.character(utils::packageVersion("scFlow")))'); echo "scFlow \${scflow_version}" > "scFlow_\${scflow_version}.version.txt"
-    """
+    shell:
+    template "scflow_qc.r"
 }
+
