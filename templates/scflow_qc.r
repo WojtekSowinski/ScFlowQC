@@ -33,36 +33,36 @@ parse_args <- function(x){
 
 
 args <- {}
-args$key_colname <- "!{params.options.key_colname}"
-args$factor_vars <- "!{params.options.factor_vars}"
-args$min_library_size <- !{params.options.min_library_size}
-args$max_library_size <- "!{params.options.max_library_size}"
-args$min_features <- !{params.options.min_features}
-args$max_features <- "!{params.options.max_features}"
-args$max_mito <- "!{params.options.max_mito}"
-args$min_ribo <- !{params.options.min_ribo}
-args$max_ribo <- !{params.options.max_ribo}
-args$min_counts <- !{params.options.min_counts}
-args$min_cells <- !{params.options.min_cells}
-args$drop_unmapped <- "!{params.options.drop_unmapped}"
-args$drop_mito <- "!{params.options.drop_mito}"
-args$drop_ribo <- "!{params.options.drop_ribo}"
-args$nmads <- !{params.options.nmads}
-args$find_singlets <- "!{params.options.find_singlets}"
-args$singlets_method <- "!{params.options.singlets_method}"
-args$vars_to_regress_out <- "!{params.options.vars_to_regress_out}"
-args$pca_dims <- !{params.options.pca_dims}
-args$var_features <- !{params.options.var_features}
-args$doublet_rate <- !{params.options.doublet_rate}
-args$dpk <- "!{params.options.dpk}"
-args$pK <- "!{params.options.pK}"
-args$find_cells <- "!{params.options.find_cells}"
-args$lower <- !{params.options.lower}
-args$retain <- "!{params.options.retain}"
-args$alpha_cutoff <- !{params.options.alpha_cutoff}
-args$niters <- !{params.options.niters}
-args$expect_cells <- "!{params.options.expect_cells}"
-args$species <- "!{params.options.species}"
+args$key_colname <- "!{params.qc_key_colname}"
+args$factor_vars <- "!{params.qc_factor_vars}"
+args$min_library_size <- !{params.qc_min_library_size}
+args$max_library_size <- "!{params.qc_max_library_size}"
+args$min_features <- !{params.qc_min_features}
+args$max_features <- "!{params.qc_max_features}"
+args$max_mito <- "!{params.qc_max_mito}"
+args$min_ribo <- !{params.qc_min_ribo}
+args$max_ribo <- !{params.qc_max_ribo}
+args$min_counts <- !{params.qc_min_counts}
+args$min_cells <- !{params.qc_min_cells}
+args$drop_unmapped <- "!{params.qc_drop_unmapped}"
+args$drop_mito <- "!{params.qc_drop_mito}"
+args$drop_ribo <- "!{params.qc_drop_ribo}"
+args$nmads <- !{params.qc_nmads}
+args$find_singlets <- "!{params.mult_find_singlets}"
+args$singlets_method <- "!{params.mult_singlets_method}"
+args$vars_to_regress_out <- "!{params.mult_vars_to_regress_out}"
+args$pca_dims <- !{params.mult_pca_dims}
+args$var_features <- !{params.mult_var_features}
+args$doublet_rate <- !{params.mult_doublet_rate}
+args$dpk <- "!{params.mult_dpk}"
+args$pK <- "!{params.mult_pK}"
+args$find_cells <- "!{params.amb_find_cells}"
+args$lower <- !{params.amb_lower}
+args$retain <- "!{params.amb_retain}"
+args$alpha_cutoff <- !{params.amb_alpha_cutoff}
+args$niters <- !{params.amb_niters}
+args$expect_cells <- "!{params.amb_expect_cells}"
+args$species <- "!{params.species}"
 
 
 
