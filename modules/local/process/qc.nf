@@ -27,8 +27,6 @@ process SCFLOW_QC {
     path 'qc_plots'             , emit: qc_plots, type: 'dir'
     path 'sce/*_sce'            , emit: qc_sce, type: 'dir'
 
-    script:
-    def software = getSoftwareName(task.process)
 
     shell:
     template "scflow_qc.r"
