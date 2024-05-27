@@ -33,6 +33,6 @@ process SCFLOW_CHECKINPUTS {
         --input $input \
         --manifest $manifest
 
-    scflow_version=\$(Rscript -e 'cat(as.character(utils::packageVersion("scFlow")))'); echo "scFlow \${scflow_version}" > "scFlow_\${scflow_version}.version.txt"
+    scflow_version=\$(Rscript -e 'cat(as.character(utils::packageVersion("scflowqc")))'); echo "scFlowQC \${scflow_version}" > "scFlow_\${scflow_version}.version.txt"
     """
 }

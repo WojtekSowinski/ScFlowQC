@@ -9,7 +9,7 @@ options(mc.cores = !{task.cpus})
 
 ##  ............................................................................
 ##  Load packages                                                           ####
-library(scFlow)
+library(scflowqc)
 
 ##  ............................................................................
 ##  Parse command-line arguments                                            ####
@@ -128,7 +128,7 @@ if (!is.null(args$factor_vars)) {
 
 cli::boxx(paste0("Analysing: ", "!{key}"), float = "center")
 
-mat <- scFlow::read_sparse_matrix("!{mat_path}")
+mat <- scflowqc::read_sparse_matrix("!{mat_path}")
 
 metadata <- read_metadata(
   unique_key = "!{key}",
