@@ -16,7 +16,7 @@ The code published here informed sections 5.1 and 6.2 and Chapter 8 of the proje
 
 Please refer to [the scFlow pipeline repository](https://github.com/combiz/nf-core-scflow) for instruction on using the pipeline
 
-To run the pipeline with 
+To run the pipeline using the original ScFlow R package, checkout commit 52be7b1b2b56e138f68f6f4f57a5a464468288b2.
 
 > **The nf-core framework for community-curated bioinformatics pipelines.**
 >
